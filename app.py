@@ -32,7 +32,7 @@ mysql_config = {
 
 def get_sql_server_conn():
     return pyodbc.connect(
-        f"DRIVER={{ODBC Driver 18 for SQL Server}};"
+        f"DRIVER={{ODBC Driver 17 for SQL Server}};"
         f"SERVER={sql_server_config['server']};"
         f"DATABASE={sql_server_config['database']};"
         f"UID={sql_server_config['username']};"
