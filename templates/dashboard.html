@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard - Recibos y Constancias</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    body {
+      background-color: #f4f6fa;
+      color: #001f54;
+    }
+
+    .navbar {
+      background-color: #001f54;
+    }
+
+    .table thead {
+      background-color: #001f54;
+      color: #fff;
+    }
+
+    .card {
+      border: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      margin-bottom: 40px;
+    }
+
+    .btn-primary {
+      background-color: #001f54;
+      border-color: #001f54;
+    }
+
+    .btn-primary:hover {
+      background-color: #003366;
+      border-color: #003366;
+    }
+
+    .btn-outline-light:hover {
+      background-color: #ffffff22;
+    }
+
+    /* Modo oscuro */
+    body.dark-mode {
+      background-color: #121212 !important;
+      color: #ffffff;
+    }
+
+    body.dark-mode .navbar {
+      background-color: #1f1f1f;
+    }
+
+    body.dark-mode .card {
+      background-color: #1f1f1f;
+      color: #ffffff;
+    }
+
+    body.dark-mode .table thead {
+      background-color: #343a40;
+    }
+
+    body.dark-mode .btn-outline-light {
+      color: #ffffff;
+      border-color: #ffffff44;
+    }
+
+    .theme-toggle {
+      cursor: pointer;
+      color: white;
+      margin-left: 1rem;
+      font-size: 1.25rem;
+    }
+  </style>
+</head>
+<title>{{ portal_nombre }} - Recibos y Constancias</title>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="#"><i class="bi bi-house-door me-2"></i>{{ portal_nombre }}</a>
+    <div class="d-flex align-items-center">
+      <i class="bi bi-circle-half theme-toggle" id="toggleTheme" title="Cambiar tema"></i>
+      <a href="{{ url_for('logout') }}" class="btn btn-outline-light ms-3">Cerrar sesión</a>
+    </div>
+  </div>
+</nav>
+
+  <div class="container my-5">
+    <div class="mb-4">
+      <h3 class="fw-semibold">
+        Bienvenido: {{ nombre_empleado }}
+        <span class="text-muted">({{ employee_id }})</span>
+      </h3>
+    </div>
+
+    <!-- Menú de pestañas -->
+    <ul class="nav nav-tabs mb-4" id="dashboardTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="recibos-tab" data-bs-toggle="tab" data-bs-target="#recibos" type="button" role="tab">
+          <i class="bi bi-receipt-cutoff me-1"></i>Recibos
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="constancias-tab" data-bs-toggle="tab" data-bs-target="#constancias" type="button" role="tab">
+          <i class="bi bi-file-earmark-text me-1"></i>Constancias
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="vacaciones-tab" data-bs-toggle="tab" data-bs-target="#vacaciones" type="button" role="tab">
+          <i class="bi bi-calendar2-week me-1"></i>Vacaciones
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content" id="dashboardTabsContent">
+      <!-- Tab Recibos -->
+      <div class="tab-pane fade show active" id="recibos" role="tabpanel">
+        <h4><i class="bi bi-receipt-cutoff me-2"></i>Recibos de Pago</h4>
+        {% if recibos %}
+        <div class="card p-4">
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead>
+                <tr>
+                  <th>Recibo #</th>
+                  <th>Fecha inicio</th>
+                  <th>Fecha fin</th>
+                  <th>Pago neto (Lps.)</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for recibo in recibos %}
+                <tr>
+                  <td>{{ recibo.slip_id }}</td>
+                  <td>{{ recibo.start_date.strftime('%d/%m/%Y') }}</td>
+                  <td>{{ recibo.end_date.strftime('%d/%m/%Y') }}</td>
+                  <td>L {{ "{:,.2f}".format(recibo.net_pay) }}</td>
+                  <td>
+                    <a href="{{ url_for('ver_recibo', slip_id=recibo.slip_id) }}" class="btn btn-sm btn-primary">Ver detalles</a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info mt-4">No se encontraron recibos para mostrar.</div>
+        {% endif %}
+      </div>
+
+      <!-- Tab Constancias -->
+      <div class="tab-pane fade" id="constancias" role="tabpanel">
+        <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3 mt-4">
+          <h4 class="mb-0"><i class="bi bi-file-earmark-text me-2"></i>Constancias de Trabajo</h4>
+          {% if recibos %}
+          <button id="btnGenerarConstancia" class="btn btn-sm btn-secondary">
+            <i class="bi bi-plus-circle me-1"></i>Generar constancia
+          </button>
+          {% endif %}
+        </div>
+
+        {% if constancias %}
+        <div class="card p-4">
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Fecha emisión</th>
+                  <th>Salario (Lps.)</th>
+                  <th>Cargo</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for c in constancias %}
+                <tr>
+                  <td>{{ c.id }}</td>
+                  <td>{{ c.fecha_emision }}</td>
+                  <td>L {{ "{:,.2f}".format(c.salario * 2) }}</td>
+                  <td>{{ c.cargo }}</td>
+                  <td>
+                    <a href="{{ url_for('descargar_constancia', constancia_id=c.id) }}" class="btn btn-sm btn-primary" target="_blank">Ver PDF</a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info mt-4">No se encontraron constancias para mostrar.</div>
+        {% endif %}
+      </div>
+
+    <!-- Tab Vacaciones -->
+<div class="tab-pane fade" id="vacaciones" role="tabpanel">
+  <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3 mt-4">
+    <h4 class="mb-0"><i class="bi bi-calendar2-week me-2"></i>Resumen de Vacaciones</h4>
+    <a href="{{ url_for('vacaciones') }}" class="btn btn-sm btn-primary">Ver detalle</a>
+  </div>
+
+  <div class="row text-center">
+    {% if vacaciones_asignados is not none and vacaciones_usados is not none and vacaciones_disponibles is not none %}
+      <div class="col-md-4 mb-3">
+        <div class="card p-3 shadow-sm border-primary">
+          <h4 class="mb-2" style="color: #0b3d91;">Días Asignados</h4>
+          <p class="fs-4 fw-bold" style="color: #0b3d91;">{{ '%.2f' | format(vacaciones_asignados) }}</p>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <div class="card p-3 shadow-sm border-warning">
+          <h4 class="text-warning mb-2">Días Usados</h4>
+          <p class="fs-4 fw-bold text-warning">{{ '%.2f' | format(vacaciones_usados) }}</p>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <div class="card p-3 shadow-sm border-success">
+          <h4 class="text-success mb-2">Días Disponibles</h4>
+          <p class="fs-4 fw-bold {{ 'text-danger' if vacaciones_disponibles < 0 else 'text-success' }}">
+            {{ '%.2f' | format(vacaciones_disponibles) }}
+          </p>
+        </div>
+      </div>
+    {% else %}
+      <div class="col-12">
+        <p class="mb-0">Consulta tus períodos de vacaciones, días usados y disponibles.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+  <!-- Modal para alerta límite -->
+  <div class="modal fade" id="limiteModal" tabindex="-1" aria-labelledby="limiteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="limiteModalLabel">Límite alcanzado</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body" id="limiteModalBody"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Verificar límite constancias
+    document.getElementById('btnGenerarConstancia')?.addEventListener('click', function () {
+      fetch("{{ url_for('verificar_limite_constancias') }}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin'
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.permitido) {
+            window.open("{{ url_for('generar_constancia', slip_id=recibos[0].slip_id) }}", '_blank');
+          } else {
+            document.getElementById('limiteModalBody').textContent = data.mensaje || 'No puedes generar más constancias este mes.';
+            new bootstrap.Modal(document.getElementById('limiteModal')).show();
+          }
+        })
+        .catch(err => {
+          alert('Error al verificar el límite de constancias.');
+          console.error(err);
+        });
+    });
+
+    // Cambiar tema claro/oscuro
+    const toggleBtn = document.getElementById("toggleTheme");
+    const theme = localStorage.getItem("theme");
+    if (theme === "dark") document.body.classList.add("dark-mode");
+
+    toggleBtn.addEventListener("click", () => {
+      document.body.classList.toggle("dark-mode");
+      const newTheme = document.body.classList.contains("dark-mode") ? "dark" : "light";
+      localStorage.setItem("theme", newTheme);
+    });
+  </script>
+</body>
+
+</html>

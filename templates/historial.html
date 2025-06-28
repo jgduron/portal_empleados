@@ -1,0 +1,17 @@
+<h2>Historial de Constancias Generadas</h2>
+<table border="1" cellpadding="8">
+    <tr>
+        <th>Fecha</th>
+        <th>Cargo</th>
+        <th>Salario</th>
+        <th>Ver</th>
+    </tr>
+    {% for c in constancias %}
+    <tr>
+        <td>{{ c.fecha_emision }}</td>
+        <td>{{ c.cargo }}</td>
+        <td>L. {{ "%.2f"|format(c.salario) }}</td>
+        <td><a href="{{ url_for('descargar_constancia', constancia_id=c.id) }}" target="_blank">PDF</a></td>
+    </tr>
+    {% endfor %}
+</table>

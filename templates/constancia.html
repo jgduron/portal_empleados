@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            margin: 30px;
+            color: #000;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            text-decoration: underline;
+        }
+
+        .header {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .logo {
+            width: 100px;
+            height: auto;
+        }
+
+        .info {
+            text-align: right;
+            font-size: 0.9em;
+            line-height: 1.4;
+            color: #001f54;
+            margin-bottom: 40px;
+        }
+
+        .contenido {
+            margin-top: 80px;
+            /* Ajusta según el tamaño del membrete */
+        }
+
+        .deductions {
+            margin: 15px 0 25px 15px;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        ul li {
+            margin-bottom: 5px;
+        }
+
+        .totals {
+            margin-left: 15px;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+
+        .signature {
+            margin-top: 60px;
+            text-align: center;
+            font-weight: bold;
+            line-height: 1.2;
+            /* Reduce espacio vertical entre líneas */
+        }
+
+        .signature-span {
+            display: inline;
+            /* Asegura que no haya bloque separado */
+            font-weight: normal;
+        }
+    </style>
+</head>
+
+<body>
+
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <div class="contenido">
+        <h2>CONSTANCIA DE TRABAJO</h2>
+
+        <p>
+            La suscrita Gerente de Talento Humano de LKCO S.A.de C.V. por medio de la presente hace constar que el/la
+            Sr(a).
+            <strong>{{ nombre }}</strong>, con número de identidad <strong>{{ identidad }}</strong>, labora en nuestra
+            empresa desde el <strong>{{ dia_ingreso }} de {{ mes_ingreso }} del {{ anio_ingreso }}</strong>
+            desempeñando el cargo de <strong>{{ cargo }}</strong>.
+        </p>
+        <p>
+            Actualmente devenga un salario mensual de <strong>L. {{ "{:,.2f}".format((salario * 2)|default(0))
+                }}</strong>,
+            y tiene las siguientes deducciones:
+        </p>
+
+        <div class="deductions">
+            <ul>
+                {% for d in deducciones %}
+                <li>{{ d.salary_component|default('') }}: L. {{ "{:,.2f}".format((d.amount * 2)|default(0)) }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="totals">
+            <p>Total deducciones: L. {{ "{:,.2f}".format((total_deducciones * 2)|default(0)) }}</p>
+            <p>Sueldo neto: L. {{ "{:,.2f}".format(((salario * 2)|default(0)) - ((total_deducciones * 2)|default(0))) }}
+            </p>
+        </div>
+
+        <p>
+            Y para los fines que el interesado estime conveniente se le extiende la presente en la Ciudad de
+            Tegucigalpa, M.D.C., a los {{ dia }} días del mes de {{ mes }} del {{ anio }}.
+        </p>
+
+        <div class="signature" style="text-align: center;">
+            <img src="data:image/png;base64,{{ firma_base64 }}" alt="Firma digital"
+                style="height: 100px; margin-bottom: 10px; display: inline-block;" />
+            <br />
+            Gerente de Talento Humano<br>
+            <span class="signature-span">LKCO S.A. de C.V.</span>
+        </div>
+</body>
+
+</html>
